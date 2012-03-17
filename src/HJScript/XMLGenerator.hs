@@ -1,4 +1,4 @@
-{-# LANGUAGE OverlappingInstances, UndecidableInstances #-}
+{-# LANGUAGE OverlappingInstances, UndecidableInstances, CPP #-}
 module HJScript.XMLGenerator (
 --        ToChildNodes(..), ToAttributeNode(..),
         
@@ -23,9 +23,15 @@ type Child = Exp Node
 type Attribute = Exp AttributeNode
 
 instance HSX.XMLGen HJScript' where
- type HSX.XML          HJScript' = XML
+#if __GLASGOW_HASKELL__ > 702
+ type    XML       HJScript' = XML
+ newtype Child     HJScript' = HJSChild Child
+ newtype Attribute HJScript' = HJSAttr Attribute
+#else
+ type    HSX.XML       HJScript' = XML
  newtype HSX.Child     HJScript' = HJSChild Child
  newtype HSX.Attribute HJScript' = HJSAttr Attribute
+#endif
  genElement = element
  genEElement = eElement
  xmlToChild = HJSChild . castToNode
